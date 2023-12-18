@@ -15,7 +15,8 @@ class FileStorage:
         else:
             newDict = {}
             for k, v in self.__objects.items():
-                newDict[k] = v
+                if cls is v.__class__:
+                    newDict[k] = v
             return newDict
         return FileStorage.__objects
 
