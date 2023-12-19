@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+from re import match, fullmatch
 import sys
 from models.base_model import BaseModel
 from models.__init__ import storage
@@ -73,7 +74,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] =='}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,13 +116,46 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
+        attributes_to_ignore = ('created_at', 'updated_at', 'id', '__class__')
+        class_name = str()
+        pattern = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
+        matchh = match(pattern, args)
+        kwargs = {}
+        if matchh is not None:
+            class_name = matchh.group('name')
+            parameters_string = args[len(class_name):].strip()
+            parameters = parameters_string.split(" ")
+            string_pattern = r'(?P<t_str>"([^"]|\")*")'
+            float_pattern = r'(?P<t_float>[-+]?\d+\.\d+)'
+            integer_pattern = r'(?P<t_int>[-+]?\d+)'
+            parameter_pattern = '{}=({}|{}|{})'.format(
+                pattern,
+                string_pattern,
+                float_pattern,
+                integer_pattern
+            )
+            for parameter in parameters:
+                parameter_match = fullmatch(parameter_pattern, parameter)
+                if parameter_match is not None:
+                    key_name = parameter_match.group('name')
+                    str_v = parameter_match.group('t_str')
+                    float_v = parameter_match.group('t_float')
+                    int_v = parameter_match.group('t_int')
+                    if float_v is not None:
+                        kwargs[key_name] = float(float_v)
+                    if int_v is not None:
+                        kwargs[key_name] = int(int_v)
+                    if str_v is not None:
+                        kwargs[key_name] = str_v[1:-1].replace('_', ' ')
+        else:
+            class_name = args
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+        elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+        new_instance = HBNBCommand.classes[class_name](**kwargs)
         storage.save()
         print(new_instance.id)
         storage.save()
@@ -187,7 +221,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -319,6 +353,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
