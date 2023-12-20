@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+from os import getenv
 from re import match, fullmatch
 import sys
 from models.base_model import BaseModel
@@ -155,10 +156,23 @@ class HBNBCommand(cmd.Cmd):
         elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[class_name](**kwargs)
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        if getenv('HBNB_TYPE_STORAGE') == 'db':
+            if not hasattr(obj_kwargs, 'id'):
+                kwargs['id'] = str(uuid.uuid4())
+            if not hasattr(obj_kwargs, 'created_at'):
+                kwargs['created_at'] = str(datetime.now())
+            if not hasattr(obj_kwargs, 'updated_at'):
+                kwargs['updated_at'] = str(datetime.now())
+            new_obj = HBNBCommand.classes[class_name](**obj_kwargs)
+            new_obj.save()
+            print(new_obj.id)
+        else:
+            new_obj = HBNBCommand.classes[class_name]()
+            for key, value in kwargs.items():
+                if key not in attributes_to_ignore:
+                    setattr(new_obj, key, value)
+            new_obj.save()
+            print(new_obj.id)
 
     def help_create(self):
         """ Help information for the create method """
