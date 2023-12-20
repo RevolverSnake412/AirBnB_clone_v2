@@ -8,6 +8,7 @@ from sqlalchemy import Column, String, Integer, DATETIME
 
 Base = declarative_base()
 
+
 class BaseModel:
     """A base class for all hbnb models"""
     id = Column(String(60), nullable=False, primary_key=True, unique=True)
@@ -58,7 +59,6 @@ class BaseModel:
                 dictionary[k] = v
         dictionary["__class__"] = type(self).__name__
         return dictionary
-    
 
     def delete(self):
         """ Deletes the current instance from the storage """
