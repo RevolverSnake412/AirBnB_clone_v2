@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+import uuid
+from datetime import datetime
 from os import getenv
 from re import match, fullmatch
 import sys
 from models.base_model import BaseModel
-from models.__init__ import storage
+from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -157,13 +159,13 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         if getenv('HBNB_TYPE_STORAGE') == 'db':
-            if not hasattr(obj_kwargs, 'id'):
+            if not hasattr(kwargs, 'id'):
                 kwargs['id'] = str(uuid.uuid4())
-            if not hasattr(obj_kwargs, 'created_at'):
+            if not hasattr(kwargs, 'created_at'):
                 kwargs['created_at'] = str(datetime.now())
-            if not hasattr(obj_kwargs, 'updated_at'):
+            if not hasattr(kwargs, 'updated_at'):
                 kwargs['updated_at'] = str(datetime.now())
-            new_obj = HBNBCommand.classes[class_name](**obj_kwargs)
+            new_obj = HBNBCommand.classes[class_name](**kwargs)
             new_obj.save()
             print(new_obj.id)
         else:
@@ -254,11 +256,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -271,7 +273,7 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage._FileStorage__objects.items():
+        for k, v in storage.all().items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)

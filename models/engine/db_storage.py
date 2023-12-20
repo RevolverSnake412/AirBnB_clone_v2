@@ -1,28 +1,29 @@
 #!/usr/bin/python3
-from os import environ
+from os import getenv
 from sqlalchemy import create_engine
-from models.base_model import Base
-from models.amenity import Ameninty
+from models.base_model import Base, BaseModel
+from models.city import City
+from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 
-class DBStorage():
+class DBStorage:
     """ DB Engine """
     __engine = None
     __session = None
 
     def __init__(self):
         """ Class's Constructor """
-        user = environ["HBNB_MYSQL_USER"]
-        password = environ["HBNB_MYSQL_PWD"]
-        host = environ["HBNB_MYSQL_HOST"]
-        database = environ["HBNB_MYSQL_DB"]
-        env = environ["HBNB_ENV"]
-        url = f"mysql+mysqldb://{user}:{password}@{host}:{database}"
+        user = getenv("HBNB_MYSQL_USER")
+        password = getenv("HBNB_MYSQL_PWD")
+        host = getenv("HBNB_MYSQL_HOST")
+        database = getenv("HBNB_MYSQL_DB")
+        env = getenv("HBNB_ENV")
+        url = f"mysql+mysqldb://{user}:{password}@{host}:3306/{database}"
         self.__engine = create_engine(url, pool_pre_ping=True)
         if env == "test":
             Base.metadata.drop_all(self.__engine)

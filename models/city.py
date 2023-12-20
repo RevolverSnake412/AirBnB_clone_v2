@@ -8,5 +8,11 @@ from os import getenv
 class City(BaseModel, Base):
     """ The city class, contains state ID and name """
     __tablename__ = "cities"
-    name = Column(String(128), nullable=False)
-    state_id = Column(String(60), ForeignKey("state_id"), nullable=False)
+    if getenv("HBNB_TYPE_STORAGE") == "db":
+        name = Column(String(128), nullable=False)
+    else:
+        name = ''
+    if getenv("HBNB_TYPE_STORAGE") == "db":
+        state_id = Column(String(60), ForeignKey("states.id"), nullable=False)
+    else:
+        state_id = ""
