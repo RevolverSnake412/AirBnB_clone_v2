@@ -24,5 +24,4 @@ def do_deploy(archive_path):
         run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         return True
     except Exception as e:
-        print(f"Error deploying archive: {e}")
         return False
