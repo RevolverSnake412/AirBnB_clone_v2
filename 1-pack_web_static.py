@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-"""Fabric script that generates a tgz archive from the contents of the web_static"""
+"""
+Fabric script that generates a tgz archive
+from the contents of the web_static
+"""
 
 from datetime import datetime
 from fabric.api import local
@@ -15,5 +18,6 @@ def do_pack():
         file_name = "versions/web_static_{}.tgz".format(date)
         local("tar -cvzf {} web_static".format(file_name))
         return file_name
-    except:
+    except Exception as e:
+        print(f"Error packing web_static: {e}")
         return None
